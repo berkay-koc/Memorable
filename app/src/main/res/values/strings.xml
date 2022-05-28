@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Memorable</string>
+    <string name="pick_a_date">Pick a Date</string>
+    <string name="image_video">Image/Video</string>
+    <string name="location">Location</string>
+    <string name="password">Password</string>
+    <string name="memory_description">Memory Description</string>
+    <string name="title">Title</string>
 </resources>
