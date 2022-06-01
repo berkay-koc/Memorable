@@ -1,18 +1,10 @@
 package com.example.memorable;
 
-import android.location.Location;
-import android.net.Uri;
-
-import java.util.Date;
-
 public class Memory {
+    String title, emoji, description, password, date, location, imageUri, id;
 
-    String title, emoji, description, password;
-    Date date;
-    Location location;
-    Uri imageUri;
-
-    public Memory(String title, String emoji, String description, Date date, Location location, Uri imageUri) {
+    public Memory(String id, String title, String emoji, String description, String date, String location, String imageUri) {
+        this.id = id;
         this.title = title;
         this.emoji = emoji;
         this.description = description;
@@ -21,7 +13,7 @@ public class Memory {
         this.imageUri = imageUri;
     }
 
-    public Memory(String title, String emoji, String description, String password, Date date, Location location, Uri imageUri) {
+    public Memory(String id, String title, String emoji, String description,  String date, String location, String imageUri, String password) {
         this.title = title;
         this.emoji = emoji;
         this.description = description;
@@ -63,27 +55,27 @@ public class Memory {
         this.description = description;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
-    public Location getLocation() {
+    public String getLocation() {
         return location;
     }
 
-    public void setLocation(Location location) {
+    public void setLocation(String location) {
         this.location = location;
     }
 
-    public Uri getImageUri() {
+    public String getImageUri() {
         return imageUri;
     }
 
-    public void setImageUri(Uri imageUri) {
+    public void setImageUri(String imageUri) {
         this.imageUri = imageUri;
     }
 }

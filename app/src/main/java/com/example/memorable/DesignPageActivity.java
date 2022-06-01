@@ -4,11 +4,17 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,7 +25,12 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -31,15 +42,11 @@ import com.google.android.gms.tasks.Task;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,20 +56,21 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 public class DesignPageActivity extends AppCompatActivity {
 
     EditText title, description, password, emoji;
-    TextView emojiText;
-    ImageView location, imageUri, imageHolder;
-    int unicode;
+    TextView emojiText, locationText;
+    ImageView location, imageButton, imageHolder;
+    int emojiIndex = -1;
+    Uri imageUri;
     String locationString, emojiItem, date;
     DatePickerDialog datePickerDialog;
     Button createButton, datePickerButton;
     FusedLocationProviderClient fusedLocationProviderClient;
     ArrayAdapter<String> adapterItems;
     AutoCompleteTextView autoCompleteTextView;
+    ActivityResultLauncher<Intent> activityResultLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,23 +86,44 @@ public class DesignPageActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 emojiItem = parent.getItemAtPosition(position).toString();
+                emojiIndex = position;
                 autoCompleteTextView.setHint(emojiItem);
-                System.out.println(emojiItem);
             }
         });
-        Random rand = new Random();
-        unicode = emojiList.get(rand.nextInt(emojiList.size()));
         title = findViewById(R.id.title);
         description = findViewById(R.id.description);
         password = findViewById(R.id.password);
         location = findViewById(R.id.location);
-        imageUri = findViewById(R.id.imageOrVideo);
+        imageButton = findViewById(R.id.imageOrVideo);
+        locationText = findViewById(R.id.locationText);
         imageHolder = findViewById(R.id.imageHolder);
         createButton = (Button) findViewById(R.id.createButton);
         datePickerButton = (Button) findViewById(R.id.datePickerButton);
         datePickerButton.setText(getTodaysDate());
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        date = getTodaysDate();
 
+        /*Image operations*/
+        imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                activityResultLauncher.launch(intent);
+            }
+        });
+
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        imageUri = result.getData().getData();
+                        imageHolder.setImageURI(imageUri);
+                    }
+                }
+            }
+        });
+        /*Location operations*/
         location.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -108,8 +137,8 @@ public class DesignPageActivity extends AppCompatActivity {
                                 Geocoder geocoder = new Geocoder(DesignPageActivity.this, Locale.getDefault());
                                 try{
                                     List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                                    locationString = Double.toString(addresses.get(0).getLatitude()) + " " + Double.toString(addresses.get(0).getLongitude());
-                                    System.out.println(locationString);
+                                    locationString = addresses.get(0).getAddressLine(0);
+                                    locationText.setText(locationString);
 
                                 } catch (IOException e) {
                                     e.printStackTrace();
@@ -123,26 +152,54 @@ public class DesignPageActivity extends AppCompatActivity {
                 }
             }
         });
-
+        /*File write operations*/
         createButton.setOnClickListener(new View.OnClickListener(){
             public void onClick(View view){
                 Writer output;
-                int lines = countLines(getApplicationContext().getFilesDir() + "/memories.json");
                 File file = new File(getApplicationContext().getFilesDir() + "/memories.json");
+                int lines = countLines(getApplicationContext().getFilesDir() + "/memories.json");
                 JSONObject memory = new JSONObject();
                 try {
-                    memory.put("ID", lines);
-                    memory.put("Title", title.getText().toString());
-                    memory.put("Description", description.getText().toString());
-                    memory.put("Date", date);
-                    memory.put("Location", locationString);
-                    memory.put("Image", imageUri);
-                    memory.put("Emoji", emojiItem);
-                    memory.put("Password", password.getText().toString());
-                    output = new BufferedWriter(new FileWriter(file, true));
-                    output.write(memory.toString());
-                    output.write("\n");
-                    output.close();
+                    if(title == null || title.length() == 0){
+                        Toast.makeText(DesignPageActivity.this, "Please Enter Title", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    else if(emojiIndex == -1){
+                        Toast.makeText(DesignPageActivity.this, "Please Choose Your Feelings", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    else if(description == null || description.length() == 0){
+                        Toast.makeText(DesignPageActivity.this, "Please Enter Description", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    else if(locationString == null || locationString.length() == 0){
+                        Toast.makeText(DesignPageActivity.this, "Please Enter Your Location", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    else if(date == null || date.length() == 0){
+                        Toast.makeText(DesignPageActivity.this, "Please Enter Date", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    else if(imageUri == null){
+                        Toast.makeText(DesignPageActivity.this, "Please Add an Image", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                        memory.put("id", Integer.toString(lines));
+                        memory.put("title", title.getText().toString());
+                        memory.put("emoji", emojiIndex);
+                        memory.put("description", description.getText().toString());
+                        memory.put("date", date);
+                        memory.put("location", locationString);
+                        memory.put("imageUri", imageUri);
+                        System.out.println(imageUri);
+                        memory.put("password", password.getText().toString());
+                        output = new BufferedWriter(new FileWriter(file, true));
+                        output.write(memory.toString());
+                        output.write("\n");
+                        output.close();
+                        Intent activity2Intent = new Intent(getApplicationContext(), MainActivity.class);
+                        startActivity(activity2Intent);
                 } catch (JSONException | IOException e) {
                     e.printStackTrace();
                 }
@@ -150,26 +207,23 @@ public class DesignPageActivity extends AppCompatActivity {
         });
     }
 
+    /* Menu initializer*/
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.share_menu, menu);
+        return true;
+    }
+
     public static int countLines(String fileName) {
-
         int lines = 0;
-
         try (InputStream is = new BufferedInputStream(new FileInputStream(fileName))) {
             byte[] c = new byte[1024];
-            int count = 0;
             int readChars = 0;
-            boolean endsWithoutNewLine = false;
             while ((readChars = is.read(c)) != -1) {
                 for (int i = 0; i < readChars; ++i) {
                     if (c[i] == '\n')
-                        ++count;
+                        lines++;
                 }
-                endsWithoutNewLine = (c[readChars - 1] != '\n');
             }
-            if (endsWithoutNewLine) {
-                ++count;
-            }
-            lines = count;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -177,6 +231,7 @@ public class DesignPageActivity extends AppCompatActivity {
         return lines;
     }
 
+    /* DatePicker operations*/
     private String getTodaysDate() {
         Calendar cal = Calendar.getInstance();
         int year = cal.get(Calendar.YEAR);
@@ -202,6 +257,7 @@ public class DesignPageActivity extends AppCompatActivity {
         int month = cal.get(Calendar.MONTH);
         int day = cal.get(Calendar.DAY_OF_MONTH);
         datePickerDialog = new DatePickerDialog(this, dateSetListener, year, month, day);
+        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis() - 1000);
     }
 
     private String makeDateString(int day, int month, int year){
@@ -236,11 +292,11 @@ public class DesignPageActivity extends AppCompatActivity {
         return "ERROR";
     }
 
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.share_menu, menu);
-        return true;
+    public void openDatePicker(View view) {
+        datePickerDialog.show();
     }
 
+    /* Emoji operations*/
     public String getEmojiByUnicode(int unicode){
         return new String(Character.toChars(unicode));
     }
@@ -253,7 +309,6 @@ public class DesignPageActivity extends AppCompatActivity {
         return emojiList;
     }
 
-    public void openDatePicker(View view) {
-        datePickerDialog.show();
-    }
 }
+
+

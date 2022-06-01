@@ -2,8 +2,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:id="@+id/add_item"
+    <item android:id="@+id/ShareButton"
         android:title="View"
         android:icon="@drawable/ic_baseline_share"
-        app:showAsAction="always"/>
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/shareWithOthers"
+                app:showAsAction="never"
+                android:title="Share With Others"/>
+            <item
+                android:id="@+id/convertToPDF"
+                android:title="Convert to PDF"
+                app:showAsAction="never"/>
+        </menu>
+    </item>
 </menu>
