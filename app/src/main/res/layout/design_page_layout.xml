@@ -14,12 +14,13 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/toolbarDesign"
             app:title="Memory Entry"
             app:titleTextColor="@color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:elevation="4dp"
+            app:menu="@menu/empty_menu"
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 

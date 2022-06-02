@@ -3,34 +3,53 @@ package com.example.memorable;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.FileProvider;
 
+import android.app.ActionBar;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.graphics.fonts.Font;
 import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.Scroller;
+import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.itextpdf.io.font.PdfEncodings;
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.io.image.ImageType;
+import com.itextpdf.io.source.ByteArrayOutputStream;
+import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.Rectangle;
+import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.AreaBreak;
+import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.property.TextAlignment;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,6 +58,7 @@ public class DetailsActivity extends AppCompatActivity {
     ImageView imageHolderDetail;
     Toolbar toolbar;
     String imgUri;
+    ImageData data;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,10 +68,14 @@ public class DetailsActivity extends AppCompatActivity {
         titleDetail = findViewById(R.id.titleDetail);
         emojiDetail = findViewById(R.id.emojiDetail);
         descriptionDetail = findViewById(R.id.descriptionDetail);
+        descriptionDetail.setScroller(new Scroller(this));
+        descriptionDetail.setVerticalScrollBarEnabled(true);
+        descriptionDetail.setMovementMethod(new ScrollingMovementMethod());
         imageHolderDetail = findViewById(R.id.imageHolderDetail);
         locationDetail = findViewById(R.id.locationDetail);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Bundle extras = getIntent().getExtras();
         if(extras != null){
@@ -82,7 +106,21 @@ public class DetailsActivity extends AppCompatActivity {
             case R.id.convertToPDF:
                 try {
                     createPDF();
-                    System.out.println("AAAAAAAA");
+                    Toast toast = Toast.makeText(DetailsActivity.this,"PDF file created.", Toast.LENGTH_LONG);
+                    toast.show();
+                } catch (IOException e) {
+                    Toast toast = Toast.makeText(DetailsActivity.this,"An Error Occured.", Toast.LENGTH_LONG);
+                    toast.show();
+                    e.printStackTrace();
+                }
+                return true;
+            case android.R.id.home:
+                finish();
+                return true;
+            case R.id.shareWithOthers:
+                try {
+                    createPDF();
+                    sharePdf();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -91,80 +129,77 @@ public class DetailsActivity extends AppCompatActivity {
         return true;
     }
 
-    private void createPDF() throws IOException {
-        int pageWidth = 420, pageHeight = 594;
-        int newLine = 50;
-        String filePath = Environment.getExternalStorageDirectory().getPath() + "/" + titleDetail.getText().toString() + "_" + dateDetail.getText().toString().charAt(4) + dateDetail.getText().toString().charAt(5) + ".pdf";
-        File file = new File(filePath);
+    private void createPDF() throws IOException{
+        com.itextpdf.kernel.pdf.PdfDocument pdfDoc = new com.itextpdf.kernel.pdf.PdfDocument(new PdfWriter(Environment.getExternalStorageDirectory().getPath() + "/" + titleDetail.getText().toString() + "_" + dateDetail.getText().toString().charAt(4) + dateDetail.getText().toString().charAt(5) + ".pdf"));
+        Document doc = new Document(pdfDoc);
+        Paragraph paragraph;
+
+        paragraph = new Paragraph(this.dateDetail.getText().toString());
+        paragraph.setWidth(580);
+        paragraph.setTextAlignment(TextAlignment.RIGHT);
+        doc.add(paragraph);
+
+        paragraph = new Paragraph("Title:").setBold();
+        paragraph.setWidth(580);
+        paragraph.setTextAlignment(TextAlignment.LEFT);
+        doc.add(paragraph);
+
+        paragraph = new Paragraph(this.titleDetail.getText().toString());
+        paragraph.setWidth(580);
+        paragraph.setBackgroundColor(ColorConstants.WHITE);
+        doc.add(paragraph);
+
+        paragraph = new Paragraph("Description:").setBold();
+        paragraph.setWidth(580);
+        paragraph.setTextAlignment(TextAlignment.LEFT);
+        doc.add(paragraph);
+
+        paragraph = new Paragraph(this.descriptionDetail.getText().toString());
+        paragraph.setWidth(580);
+        paragraph.setBackgroundColor(ColorConstants.WHITE);
+        doc.add(paragraph);
+
+        paragraph = new Paragraph("Image:").setBold();
+        paragraph.setWidth(580);
+        paragraph.setTextAlignment(TextAlignment.LEFT);
+        doc.add(paragraph);
+
         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), Uri.parse(imgUri));
-        Bitmap dspBmp = Bitmap.createScaledBitmap(bitmap, (int)bitmap.getWidth()/2, (int)bitmap.getHeight()/2, true);
-        Paint titlePaint = new Paint();
-        Paint myPaint = new Paint();
-        PdfDocument pdfDocument = new PdfDocument();
-        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(1200,2010,1).create();
-        PdfDocument.Page page = pdfDocument.startPage(pageInfo);
-        Canvas canvas = page.getCanvas();
-        titlePaint.setTextAlign(Paint.Align.LEFT);
-        titlePaint.setColor(Color.BLACK);
-        titlePaint.setTextSize(60f);
-        canvas.drawText(titleDetail.getText().toString(), 100, 150, titlePaint);
-        titlePaint.setTextSize(30f);
-        String[] descriptions = descriptionDetail.getText().toString().split("\\.");
-        for (int i = 0; i<descriptions.length; i++) {
-            canvas.drawText(descriptions[i].trim() + ".", 100, 200+newLine, titlePaint);
-            newLine += 50;
-        }
+        Bitmap dspBmp = Bitmap.createScaledBitmap(bitmap, (int)bitmap.getWidth()/4, (int)bitmap.getHeight()/4, true);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        dspBmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] bitmapData = stream.toByteArray();
 
-        titlePaint.setTextSize(35f);
-        canvas.drawText(locationDetail.getText().toString(), 100, 1800, titlePaint);
-        canvas.drawText(dateDetail.getText().toString(), 900, 100, titlePaint);
-        page.getCanvas().drawBitmap(dspBmp, 100, 600, myPaint);
+        ImageData imageData = ImageDataFactory.create(bitmapData);
+        Image image = new Image(imageData);
 
-        pdfDocument.finishPage(page);
-        try {
-            pdfDocument.writeTo(new FileOutputStream(file));
-            Toast toast = Toast.makeText(DetailsActivity.this,"PDF file created.", Toast.LENGTH_LONG);
-            toast.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast toast = Toast.makeText(DetailsActivity.this,"Error Occured", Toast.LENGTH_LONG);
-            toast.show();
-        }
-        pdfDocument.close();
+        doc.add(image);
 
+        paragraph = new Paragraph("Location:").setBold();
+        paragraph.setWidth(580);
+        paragraph.setTextAlignment(TextAlignment.LEFT);
+        doc.add(paragraph);
+
+        paragraph = new Paragraph(this.locationDetail.getText().toString());
+        paragraph.setWidth(580);
+        paragraph.setTextAlignment(TextAlignment.LEFT);
+        paragraph.setBackgroundColor(ColorConstants.WHITE);
+        doc.add(paragraph);
+
+
+        doc.close();
     }
 
-
-    private void createPDF2() throws IOException {
-        Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), Uri.parse(imgUri));
-        Rect rect = new Rect(0, 0, 100, 100);
-        Bitmap dspBmp = Bitmap.createScaledBitmap(bitmap, 200, 200, true);
-        PdfDocument pdfDocument = new PdfDocument();
-        Paint paint = new Paint();
-        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(420, 594, 1).create();
-        System.out.println(pageInfo.getContentRect());
-
-        PdfDocument.Page page = pdfDocument.startPage(pageInfo);
-        int x=20, y=25;
-        page.getCanvas().drawText(titleDetail.getText().toString(), x, y, paint);
-        page.getCanvas().drawText(descriptionDetail.getText().toString(), x, y+15, paint);
-        page.getCanvas().drawBitmap(dspBmp, x, y+30, paint);
-        pdfDocument.finishPage(page);
-
-        String filePath = Environment.getExternalStorageDirectory().getPath() + "/" + titleDetail.getText().toString() + "_" + dateDetail.getText().toString().charAt(4) + dateDetail.getText().toString().charAt(5) + ".pdf";
-        File file = new File(filePath);
-
-        try{
-            pdfDocument.writeTo(new FileOutputStream(file));
-            Toast toast = Toast.makeText(DetailsActivity.this,"PDF file created.", Toast.LENGTH_LONG);
-            toast.show();
+    private void sharePdf(){
+        File file = new File(Environment.getExternalStorageDirectory().getPath() + "/" + titleDetail.getText().toString() + "_" + dateDetail.getText().toString().charAt(4) + dateDetail.getText().toString().charAt(5) + ".pdf");
+        Uri uri = FileProvider.getUriForFile(DetailsActivity.this, BuildConfig.APPLICATION_ID + "." + getLocalClassName() + ".provider", file);
+        if(file.exists()) {
+            Intent share = new Intent();
+            share.setAction(Intent.ACTION_SEND);
+            share.setType("application/pdf");
+            share.putExtra(Intent.EXTRA_STREAM, uri);
+            startActivity(Intent.createChooser(share, "Share PDF"));
         }
-        catch (Exception e){
-            e.printStackTrace();
-            Toast toast = Toast.makeText(DetailsActivity.this,"Error Occured", Toast.LENGTH_LONG);
-            toast.show();
-        }
-
-        pdfDocument.close();
     }
+
 }

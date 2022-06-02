@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -33,6 +34,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -63,6 +65,7 @@ public class DesignPageActivity extends AppCompatActivity {
     TextView emojiText, locationText;
     ImageView location, imageButton, imageHolder;
     int emojiIndex = -1;
+    Toolbar toolbar;
     Uri imageUri;
     String locationString, emojiItem, date;
     DatePickerDialog datePickerDialog;
@@ -102,6 +105,9 @@ public class DesignPageActivity extends AppCompatActivity {
         datePickerButton.setText(getTodaysDate());
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         date = getTodaysDate();
+        toolbar = findViewById(R.id.toolbarDesign);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         /*Image operations*/
         imageButton.setOnClickListener(new View.OnClickListener() {
@@ -209,7 +215,17 @@ public class DesignPageActivity extends AppCompatActivity {
 
     /* Menu initializer*/
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.share_menu, menu);
+        getMenuInflater().inflate(R.menu.empty_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:
+                finish();
+                break;
+        }
         return true;
     }
 
