@@ -17,4 +17,14 @@
                 app:showAsAction="never"/>
         </menu>
     </item>
+    <item android:id="@+id/editItem"
+        android:title="Edit"
+        android:icon="@drawable/ic_baseline_edit"
+        app:showAsAction="always">
+    </item>
+    <item android:id="@+id/deleteItem"
+        android:title="Delete"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_baseline_delete">
+    </item>
 </menu>

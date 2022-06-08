@@ -118,8 +118,10 @@ public class MainActivity extends AppCompatActivity {
         InputStream is = new FileInputStream(getApplicationContext().getFilesDir() + "/memories.json");
         Scanner sc = new Scanner(is);
         while(sc.hasNextLine()){
-            memoryObj = gson.fromJson(sc.nextLine() , Memory.class);
-            memories.add(memoryObj);
+            memoryObj = gson.fromJson(sc.nextLine(), Memory.class);
+            if (memoryObj.isDeleted.equals("0")) {
+                memories.add(memoryObj);
+            }
         }
         is.close();
         sc.close();

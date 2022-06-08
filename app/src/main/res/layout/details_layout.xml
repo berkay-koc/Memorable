@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
             android:elevation="4dp"
-            app:menu="@menu/share_menu"
+            app:menu="@menu/share_edit_delete_menu"
             app:popupTheme="@style/AppTheme.PopupOverlay"
             app:title="Memory Details"
             app:titleTextColor="@color/white"/>

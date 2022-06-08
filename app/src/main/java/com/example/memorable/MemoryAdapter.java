@@ -85,8 +85,21 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.MemoryView
                             intent.putExtra("emoji", memoryObj.emoji); //number actually
                             intent.putExtra("imgUri", memoryObj.imageUri);
                             intent.putExtra("location", memoryObj.location);
+                            intent.putExtra("id", memoryObj.id);
+                            intent.putExtra("isDeleted", memoryObj.isDeleted);
+                            intent.putExtra("password", "");
                             context.startActivity(intent);
                         } else {
+                            String tempTitle, tempId, tempDescription, tempDate, tempEmoji, tempImgUri, tempLocation, tempIsDeleted, tempPassword;
+                            tempTitle = memoryObj.title;
+                            tempId = memoryObj.id;
+                            tempDescription = memoryObj.description;
+                            tempDate = memoryObj.date;
+                            tempEmoji = memoryObj.emoji;
+                            tempImgUri = memoryObj.imageUri;
+                            tempLocation = memoryObj.location;
+                            tempIsDeleted = memoryObj.isDeleted;
+                            tempPassword = memoryObj.password;
                             String memoryPassword = memoryObj.password;
                             dialog = new Dialog(context);
                             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -101,12 +114,15 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.MemoryView
                                 public void onClick(View v) {
                                     if (memoryPassword.equals(passwordDialogText.getText().toString())) {
                                         Intent intent = new Intent(context, DetailsActivity.class);
-                                        intent.putExtra("title", memoryObj.title);
-                                        intent.putExtra("description", memoryObj.description);
-                                        intent.putExtra("date", memoryObj.date);
-                                        intent.putExtra("emoji", memoryObj.emoji); //number actually
-                                        intent.putExtra("imgUri", memoryObj.imageUri);
-                                        intent.putExtra("location", memoryObj.location);
+                                        intent.putExtra("title", tempTitle);
+                                        intent.putExtra("id", tempId); // hata burada
+                                        intent.putExtra("description", tempDescription);
+                                        intent.putExtra("date", tempDate);
+                                        intent.putExtra("emoji", tempEmoji); //number actually
+                                        intent.putExtra("imgUri", tempImgUri);
+                                        intent.putExtra("location", tempLocation);
+                                        intent.putExtra("isDeleted", tempIsDeleted);
+                                        intent.putExtra("password", tempPassword);
                                         context.startActivity(intent);
                                         dialog.dismiss();
                                     } else {

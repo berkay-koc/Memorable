@@ -198,6 +198,7 @@ public class DesignPageActivity extends AppCompatActivity {
                         memory.put("date", date);
                         memory.put("location", locationString);
                         memory.put("imageUri", imageUri);
+                        memory.put("isDeleted", "0");
                         System.out.println(imageUri);
                         memory.put("password", password.getText().toString());
                         output = new BufferedWriter(new FileWriter(file, true));
