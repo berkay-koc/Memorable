@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
         InputStream is = null;
         try {
-            is = new FileInputStream(getApplicationContext().getFilesDir() + "/password.json");
+            is = new FileInputStream(getApplicationContext().getFilesDir() + "/password.txt");
             Scanner sc = new Scanner(is);
             pword = sc.nextLine();
             System.out.println(pword);
@@ -188,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
                 Writer output;
                 String passwordString = passwordDialogText.getText().toString();
                 if(passwordString.length() >= 6){
-                    File file = new File(getApplicationContext().getFilesDir() + "/password.json");
+                    File file = new File(getApplicationContext().getFilesDir() + "/password.txt");
                     try {
                         output = new BufferedWriter(new FileWriter(file, false));
                         output.write(passwordString);

@@ -205,8 +205,7 @@ public class DesignPageActivity extends AppCompatActivity {
                         output.write(memory.toString());
                         output.write("\n");
                         output.close();
-                        Intent activity2Intent = new Intent(getApplicationContext(), MainActivity.class);
-                        startActivity(activity2Intent);
+                        finish();
                 } catch (JSONException | IOException e) {
                     e.printStackTrace();
                 }
