@@ -128,36 +128,69 @@ public class DetailsActivity extends AppCompatActivity {
                 }
                 break;
             case R.id.deleteItem:
-                    dialog = new Dialog(DetailsActivity.this);
-                    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                    dialog.setCancelable(true);
-                    dialog.setContentView(R.layout.delete_dialog);
-                    yesButton = dialog.findViewById(R.id.yesButton);
-                    noButton = dialog.findViewById(R.id.noButton);
-                    yesButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            try {
-                                deleteMemory();
-                                Intent activity2Intent = new Intent(getApplicationContext(), MainActivity.class);
-                                startActivity(activity2Intent);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
+                dialog = new Dialog(DetailsActivity.this);
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                dialog.setCancelable(true);
+                dialog.setContentView(R.layout.delete_dialog);
+                yesButton = dialog.findViewById(R.id.yesButton);
+                noButton = dialog.findViewById(R.id.noButton);
+                yesButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        try {
+                            deleteMemory();
+                            dialog.dismiss();
+                            finish();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    });
-                    noButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent activity2Intent = new Intent(getApplicationContext(), MainActivity.class);
-                            startActivity(activity2Intent);
-                        }
-                    });
+                    }
+                });
+                noButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                });
                 dialog.show();
+                break;
+            case R.id.editItem:
+                try {
+                    editMemory();
+                } catch (IOException | JSONException e) {
+                    e.printStackTrace();
+                }
         }
         return true;
+    }
+
+    private void editMemory() throws IOException, JSONException {
+        List<Memory> memories = new ArrayList<>();
+        Gson gson = new Gson();
+        InputStream file = new FileInputStream(getApplicationContext().getFilesDir() + "/memories.json");
+        Scanner sc = new Scanner(file);
+        Memory memoryObj;
+        while (sc.hasNextLine()) {
+            memoryObj = gson.fromJson(sc.nextLine(), Memory.class);
+            memories.add(memoryObj);
+        }
+        for (Memory memory : memories) {
+            if (memory.id.equals(id)) {
+                Intent intent = new Intent(DetailsActivity.this, DesignPageActivity.class);
+                intent.putExtra("id", memory.id);
+                intent.putExtra("title", titleDetail.getText().toString());
+                intent.putExtra("emoji", memory.emoji);
+                intent.putExtra("imgUri", imgUri);
+                intent.putExtra("description", descriptionDetail.getText().toString());
+                intent.putExtra("date", dateDetail.getText().toString());
+                intent.putExtra("location", locationDetail.getText().toString());
+                intent.putExtra("password", memory.password);
+                intent.putExtra("isDeleted", "0");
+                DetailsActivity.this.startActivity(intent);
+            }
+        }
     }
 
     private void deleteMemory() throws IOException, JSONException {
@@ -184,8 +217,7 @@ public class DetailsActivity extends AppCompatActivity {
             memoryJson.put("password", memory.password);
             if (memory.id.equals(id) || memory.isDeleted.equals("1")) {
                 memoryJson.put("isDeleted", "1");
-            }
-            else{
+            } else {
                 memoryJson.put("isDeleted", "0");
             }
             output.write(memoryJson.toString());
