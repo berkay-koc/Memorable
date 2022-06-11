@@ -102,11 +102,13 @@ public class DetailsActivity extends AppCompatActivity {
             emojiDetail.setText(new String(Character.toChars(emojiList.get(Integer.parseInt(emoji)))));
         }
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.share_edit_delete_menu, menu);
         return true;
     }
+
     /*Menu item operations*/
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -171,6 +173,7 @@ public class DetailsActivity extends AppCompatActivity {
         }
         return true;
     }
+
     /*Edit memory button operations*/
     private void editMemory() throws IOException, JSONException {
         List<Memory> memories = new ArrayList<>();
@@ -199,6 +202,7 @@ public class DetailsActivity extends AppCompatActivity {
             }
         }
     }
+
     /*Delete memoryoperations*/
     private void deleteMemory() throws IOException, JSONException {
         List<Memory> memories = new ArrayList<>();
@@ -232,8 +236,12 @@ public class DetailsActivity extends AppCompatActivity {
         }
         output.close();
     }
+
     /*Create PDF operations*/
     private void createPDF() throws IOException {
+        File f = new File(Environment.getExternalStorageDirectory().getPath() + "/" + titleDetail.getText().toString() + "_" + dateDetail.getText().toString().charAt(0) + dateDetail.getText().toString().charAt(1) + + dateDetail.getText().toString().charAt(2) + dateDetail.getText().toString().charAt(3) + dateDetail.getText().toString().charAt(4) + ".pdf");
+        f.getParentFile().mkdirs();
+        f.createNewFile();
         com.itextpdf.kernel.pdf.PdfDocument pdfDoc = new com.itextpdf.kernel.pdf.PdfDocument(new PdfWriter(Environment.getExternalStorageDirectory().getPath() + "/" + titleDetail.getText().toString() + "_" + dateDetail.getText().toString().charAt(0) + dateDetail.getText().toString().charAt(1) + + dateDetail.getText().toString().charAt(2) + dateDetail.getText().toString().charAt(3) + dateDetail.getText().toString().charAt(4) + ".pdf"));
         Document doc = new Document(pdfDoc);
         Paragraph paragraph;
@@ -271,7 +279,7 @@ public class DetailsActivity extends AppCompatActivity {
         Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), Uri.parse(imgUri));
         Bitmap dspBmp = Bitmap.createScaledBitmap(bitmap, (int) bitmap.getWidth() / 4, (int) bitmap.getHeight() / 4, true);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        dspBmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        dspBmp.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         byte[] bitmapData = stream.toByteArray();
 
         ImageData imageData = ImageDataFactory.create(bitmapData);
@@ -293,9 +301,13 @@ public class DetailsActivity extends AppCompatActivity {
 
         doc.close();
     }
+
     /*Share PDF operations*/
-    private void sharePdf() {
-        File file = new File(Environment.getExternalStorageDirectory().getPath() + "/" + titleDetail.getText().toString() + "_" + dateDetail.getText().toString().charAt(4) + dateDetail.getText().toString().charAt(5) + ".pdf");
+    private void sharePdf() throws IOException {
+        File f = new File(Environment.getExternalStorageDirectory().getPath() + "/" + titleDetail.getText().toString() + "_" + dateDetail.getText().toString().charAt(0) + dateDetail.getText().toString().charAt(1) + + dateDetail.getText().toString().charAt(2) + dateDetail.getText().toString().charAt(3) + dateDetail.getText().toString().charAt(4) + ".pdf");
+        f.getParentFile().mkdirs();
+        f.createNewFile();
+        File file = new File(Environment.getExternalStorageDirectory().getPath() + "/" + titleDetail.getText().toString() + "_" + dateDetail.getText().toString().charAt(0) + dateDetail.getText().toString().charAt(1) + + dateDetail.getText().toString().charAt(2) + dateDetail.getText().toString().charAt(3) + dateDetail.getText().toString().charAt(4) + ".pdf");
         Uri uri = FileProvider.getUriForFile(DetailsActivity.this, BuildConfig.APPLICATION_ID + "." + getLocalClassName() + ".provider", file);
         if (file.exists()) {
             Intent share = new Intent();

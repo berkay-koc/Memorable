@@ -62,8 +62,8 @@ import java.util.Scanner;
 
 public class DesignPageActivity extends AppCompatActivity {
 
-    EditText title, description, password, emoji;
-    TextView emojiText, locationText;
+    EditText title, description, password;
+    TextView locationText;
     ImageView location, imageButton, imageHolder;
     int emojiIndex = -1;
     Toolbar toolbar;

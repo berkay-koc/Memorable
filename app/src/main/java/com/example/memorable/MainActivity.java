@@ -228,7 +228,6 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
-
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
