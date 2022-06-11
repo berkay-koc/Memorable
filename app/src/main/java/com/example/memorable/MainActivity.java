@@ -21,12 +21,17 @@ import android.graphics.pdf.PdfDocument;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.InputType;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -59,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     Dialog dialog;
     String pword;
     MemoryAdapter memoryAdapter;
+    boolean isEnabled = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,6 +94,20 @@ public class MainActivity extends AppCompatActivity {
             dialog.setContentView(R.layout.password_dialog);
 
             final EditText passwordDialogText = dialog.findViewById(R.id.passwordDialogText);
+            ImageView eyeImage = dialog.findViewById(R.id.eyeImage);
+            eyeImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!isEnabled) {
+                        passwordDialogText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                        isEnabled = true;
+                    }
+                    else{
+                        passwordDialogText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                        isEnabled = false;
+                    }
+                }
+            });
             Button setButton = dialog.findViewById(R.id.setButton);
             setButton.setText("Enter");
 
@@ -110,6 +130,9 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        Toast toast = Toast.makeText(MainActivity.this, "Welcome!", Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 160);
+        toast.show();
     }
 
     private void fetchMemories() throws IOException {
@@ -181,6 +204,21 @@ public class MainActivity extends AppCompatActivity {
         final EditText passwordDialogText = dialog.findViewById(R.id.passwordDialogText);
         Button setButton = dialog.findViewById(R.id.setButton);
         setButton.setText("Set Password");
+
+        ImageView eyeImage = dialog.findViewById(R.id.eyeImage);
+        eyeImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isEnabled) {
+                    passwordDialogText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                    isEnabled = true;
+                }
+                else{
+                    passwordDialogText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                    isEnabled = false;
+                }
+            }
+        });
 
         setButton.setOnClickListener(new View.OnClickListener() {
             @Override

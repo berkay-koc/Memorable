@@ -92,6 +92,14 @@ public class DetailsActivity extends AppCompatActivity {
             titleDetail.setText(title);
             imageHolderDetail.setImageURI(Uri.parse(imgUri));
             locationDetail.setText(location);
+            locationDetail.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(DetailsActivity.this, MapsActivity.class);
+                    intent.putExtra("locationName", locationDetail.getText().toString());
+                    DetailsActivity.this.startActivity(intent);
+                }
+            });
             emojiDetail.setText(new String(Character.toChars(emojiList.get(Integer.parseInt(emoji)))));
         }
     }
@@ -101,7 +109,7 @@ public class DetailsActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.share_edit_delete_menu, menu);
         return true;
     }
-
+    /*Menu item operations*/
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
@@ -165,7 +173,7 @@ public class DetailsActivity extends AppCompatActivity {
         }
         return true;
     }
-
+    /*Edit memory button operations*/
     private void editMemory() throws IOException, JSONException {
         List<Memory> memories = new ArrayList<>();
         Gson gson = new Gson();
@@ -188,11 +196,12 @@ public class DetailsActivity extends AppCompatActivity {
                 intent.putExtra("location", locationDetail.getText().toString());
                 intent.putExtra("password", memory.password);
                 intent.putExtra("isDeleted", "0");
+                finish();
                 DetailsActivity.this.startActivity(intent);
             }
         }
     }
-
+    /*Delete memoryoperations*/
     private void deleteMemory() throws IOException, JSONException {
         List<Memory> memories = new ArrayList<>();
         Gson gson = new Gson();
@@ -225,9 +234,9 @@ public class DetailsActivity extends AppCompatActivity {
         }
         output.close();
     }
-
+    /*Create PDF operations*/
     private void createPDF() throws IOException {
-        com.itextpdf.kernel.pdf.PdfDocument pdfDoc = new com.itextpdf.kernel.pdf.PdfDocument(new PdfWriter(Environment.getExternalStorageDirectory().getPath() + "/" + titleDetail.getText().toString() + "_" + dateDetail.getText().toString().charAt(4) + dateDetail.getText().toString().charAt(5) + ".pdf"));
+        com.itextpdf.kernel.pdf.PdfDocument pdfDoc = new com.itextpdf.kernel.pdf.PdfDocument(new PdfWriter(Environment.getExternalStorageDirectory().getPath() + "/" + titleDetail.getText().toString() + "_" + dateDetail.getText().toString().charAt(0) + dateDetail.getText().toString().charAt(1) + + dateDetail.getText().toString().charAt(2) + dateDetail.getText().toString().charAt(3) + dateDetail.getText().toString().charAt(4) + ".pdf"));
         Document doc = new Document(pdfDoc);
         Paragraph paragraph;
 
@@ -286,7 +295,7 @@ public class DetailsActivity extends AppCompatActivity {
 
         doc.close();
     }
-
+    /*Share PDF operations*/
     private void sharePdf() {
         File file = new File(Environment.getExternalStorageDirectory().getPath() + "/" + titleDetail.getText().toString() + "_" + dateDetail.getText().toString().charAt(4) + dateDetail.getText().toString().charAt(5) + ".pdf");
         Uri uri = FileProvider.getUriForFile(DetailsActivity.this, BuildConfig.APPLICATION_ID + "." + getLocalClassName() + ".provider", file);

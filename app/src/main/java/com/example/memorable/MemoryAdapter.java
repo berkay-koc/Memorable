@@ -4,6 +4,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +35,7 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.MemoryView
     private List<Memory> memoryList;
     Dialog dialog;
     Memory memoryObj;
+    boolean isEnabled = false;
 
     public MemoryAdapter(List<Memory> list, Context context) {
         memoryList = list;
@@ -106,6 +109,20 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.MemoryView
                             dialog.setCancelable(true);
                             dialog.setContentView(R.layout.password_dialog);
                             final EditText passwordDialogText = dialog.findViewById(R.id.passwordDialogText);
+                            ImageView eyeImage = dialog.findViewById(R.id.eyeImage);
+                            eyeImage.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    if (!isEnabled) {
+                                        passwordDialogText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                                        isEnabled = true;
+                                    }
+                                    else{
+                                        passwordDialogText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                                        isEnabled = false;
+                                    }
+                                }
+                            });
                             Button setButton = dialog.findViewById(R.id.setButton);
                             setButton.setText("Enter");
 

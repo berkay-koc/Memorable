@@ -101,8 +101,6 @@ public class DesignPageActivity extends AppCompatActivity {
             }
         });
 
-
-
         title = findViewById(R.id.title);
         description = findViewById(R.id.description);
         password = findViewById(R.id.password);
@@ -218,7 +216,6 @@ public class DesignPageActivity extends AppCompatActivity {
                                     List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
                                     locationString = addresses.get(0).getAddressLine(0);
                                     locationText.setText(locationString);
-
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
