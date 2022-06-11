@@ -3,7 +3,6 @@ package com.example.memorable;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
@@ -23,10 +22,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.gson.Gson;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -67,9 +64,6 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.MemoryView
             viewHolder.imageView.setImageResource(R.drawable.diary_img);
         }
 
-//        viewHolder.rowItemLayout.setOnClickListener((view) ->{
-//            System.out.println(viewHolder.number.getText().toString());
-//        });
         viewHolder.rowItemLayout.setOnClickListener((view) -> {
             Gson gson = new Gson();
             InputStream is = null;

@@ -84,8 +84,10 @@
 
     <TextView
         android:id="@+id/locationText"
-        android:layout_width="wrap_content"
+        android:layout_width="330dp"
         android:layout_height="wrap_content"
+        android:minLines="2"
+        android:maxLines="2"
         app:layout_constraintBottom_toTopOf="@id/location"
         app:layout_constraintStart_toStartOf="@id/location"
         android:text="@string/location"/>

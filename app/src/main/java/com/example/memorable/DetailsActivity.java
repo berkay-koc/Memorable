@@ -40,7 +40,6 @@ import org.json.JSONObject;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -103,7 +102,6 @@ public class DetailsActivity extends AppCompatActivity {
             emojiDetail.setText(new String(Character.toChars(emojiList.get(Integer.parseInt(emoji)))));
         }
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.share_edit_delete_menu, menu);

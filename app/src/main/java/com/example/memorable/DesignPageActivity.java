@@ -1,13 +1,9 @@
 package com.example.memorable;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -50,7 +46,6 @@ import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -161,7 +156,6 @@ public class DesignPageActivity extends AppCompatActivity {
             Date date = null;
             try {
                 date = format.parse(dateDetail);
-                System.out.println(date);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -287,10 +281,9 @@ public class DesignPageActivity extends AppCompatActivity {
                 memoryJson.put("emoji", Integer.toString(emojiIndex));
                 memoryJson.put("description", description.getText().toString());
                 memoryJson.put("date", date);
-                memoryJson.put("location", locationDetail);
-                memoryJson.put("imageUri", imgUriDetail);
+                memoryJson.put("location", locationText.getText().toString());
+                memoryJson.put("imageUri", imageUri);
                 memoryJson.put("isDeleted", "0");
-                System.out.println(imageUri);
                 memoryJson.put("password", password.getText().toString());
                 output.write(memoryJson.toString());
                 output.write("\n");
@@ -316,7 +309,7 @@ public class DesignPageActivity extends AppCompatActivity {
         intent.putExtra("description", description.getText().toString());
         intent.putExtra("date", date);
         intent.putExtra("emoji", Integer.toString(emojiIndex)); //number actually
-        intent.putExtra("imgUri", imgUriDetail);
+        intent.putExtra("imgUri", imageUri.toString());
         intent.putExtra("location", locationText.getText().toString());
         intent.putExtra("id", id);
         intent.putExtra("isDeleted", "0");
@@ -363,12 +356,12 @@ public class DesignPageActivity extends AppCompatActivity {
             memory.put("location", locationString);
             memory.put("imageUri", imageUri);
             memory.put("isDeleted", "0");
-            System.out.println(imageUri);
             memory.put("password", password.getText().toString());
             output = new BufferedWriter(new FileWriter(file, true));
             output.write(memory.toString());
             output.write("\n");
             output.close();
+            Toast.makeText(DesignPageActivity.this, "Memory Added.", Toast.LENGTH_SHORT).show();
             finish();
         } catch (JSONException | IOException e) {
             e.printStackTrace();

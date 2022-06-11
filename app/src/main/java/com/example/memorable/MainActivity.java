@@ -7,21 +7,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.pdf.PdfDocument;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.text.InputType;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.view.Gravity;
@@ -36,25 +27,16 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.Reader;
 import java.io.Writer;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
@@ -82,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
             is = new FileInputStream(getApplicationContext().getFilesDir() + "/password.txt");
             Scanner sc = new Scanner(is);
             pword = sc.nextLine();
-            System.out.println(pword);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -259,7 +240,6 @@ public class MainActivity extends AppCompatActivity {
                 showPasswordDialog();
                 break;
             case R.id.convertToPDF:
-                System.out.println("AAAAAAAA");
                 break;
             default:
                 return super.onOptionsItemSelected(item);
